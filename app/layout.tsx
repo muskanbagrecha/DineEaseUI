@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { Providers } from '@/providers/providers';
+import Link from 'next/link';
+import { ProfileButton } from '@/components/profileButton';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -26,15 +29,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased scroll-smooth flex flex-col min-h-screen`}
-      >
-        {/* Navigation here */}
-        <div className="flex max-w-screen-xl mx-auto [&_main]:flex-grow flex-grow w-full">
-          {children}
-        </div>
-        <Toaster />
-      </body>
+      <Providers>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased scroll-smooth flex flex-col min-h-screen`}
+        >
+          <div className="bg-purple-400 text-white p-4 flex justify-between items-center">
+            <Link href="/">
+              <h1>DineEase</h1>
+            </Link>
+            <ProfileButton />
+          </div>
+          <div className="flex flex-col max-w-screen-xl mx-auto [&_main]:flex-grow flex-grow w-full [&>main]:px-4">
+            {children}
+          </div>
+          <Toaster />
+        </body>
+      </Providers>
     </html>
   );
 }

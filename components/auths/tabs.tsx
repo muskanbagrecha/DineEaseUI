@@ -1,16 +1,14 @@
-// import { getSession } from '@/actions/cookies';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { LoginTab } from './login';
 import { SignupTab } from './signup';
 
 export async function AuthTabs() {
-  //   const token = await getSession('token');
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg">
+    <Card className="w-full max-w-md mx-auto mt-10 shadow-lg transition-all duration-200">
       <CardHeader>
         <CardTitle className="text-center text-lg font-semibold">
-          Authentication {'Not Logged In'}
+          Authentication
         </CardTitle>
       </CardHeader>
       <CardContent>

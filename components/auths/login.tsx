@@ -4,6 +4,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -17,6 +18,8 @@ import {
 } from '../ui/form';
 import { TabsContent } from '../ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { loginFormHandler } from '@/actions/formHandler/login';
+import { useAuth } from '@/context/authContext';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -24,21 +27,50 @@ const loginSchema = z.object({
 });
 
 export function LoginTab() {
+  const router = useRouter();
+  const { recheckSession } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
   });
 
-  async function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
+  function triggerToast(
+    message: string,
+    variant: 'error' | 'success' | 'default'
+  ) {
+    let className = '';
+    if (variant === 'error') {
+      className = 'bg-red-500 text-white';
+    } else if (variant === 'success') {
+      className = 'bg-green-500 text-white';
+    }
     toast({
       variant: 'default',
-      duration: 3000,
-      title: 'Login in progress......',
-      className: 'bg-green-500 text-white',
+      duration: 1000,
+      title: message,
+      className: className,
     });
   }
+
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    triggerToast('Login in Progress', 'default');
+    const res = await loginFormHandler(values);
+    console.log(res);
+    if (res.success) {
+      triggerToast('Login Successful', 'success');
+      router.push('/');
+      await recheckSession();
+    } else {
+      triggerToast(res.error, 'error');
+      form.setError('root', {
+        type: 'manual',
+        message: res.error,
+      });
+    }
+  }
+
+  const { isSubmitting } = form.formState;
 
   return (
     <TabsContent value="login" className="px-6">
@@ -55,6 +87,10 @@ export function LoginTab() {
                     placeholder="Enter your email"
                     {...field}
                     aria-label="Email"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      form.clearErrors('root');
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -75,6 +111,10 @@ export function LoginTab() {
                       {...field}
                       aria-label="Password"
                       className="flex-[6]"
+                      onChange={(e) => {
+                        field.onChange(e);
+                        form.clearErrors('root');
+                      }}
                     />
                   </FormControl>
                   <Button
@@ -90,9 +130,13 @@ export function LoginTab() {
               </FormItem>
             )}
           />
-
-          <Button type="submit" className="w-full ">
-            Login
+          {form.formState.errors.root && (
+            <div className="text-red-500 mb-4">
+              {form.formState.errors.root.message}
+            </div>
+          )}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Loading...' : 'Login'}
           </Button>
         </form>
       </Form>

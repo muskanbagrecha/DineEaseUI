@@ -1,7 +1,6 @@
-import { AuthTabs } from '@/components/auth/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
+import { AuthTabs } from '@/components/auths/tabs';
 
-function AuthPage() {
+async function AuthPage() {
   return (
     <main className="flex items-center justify-center">
       <AuthTabs />
